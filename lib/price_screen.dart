@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'coin_data.dart';
 
@@ -8,6 +11,7 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String chosenCurrency = currenciesList[0];
+
   List<DropdownMenuItem> makeDropdownItems() {
     List<DropdownMenuItem<String>> items = [];
     for (String currency in currenciesList) {
@@ -15,6 +19,19 @@ class _PriceScreenState extends State<PriceScreen> {
         DropdownMenuItem(
           child: Text(currency),
           value: currency,
+        ),
+      );
+    }
+    return items;
+  }
+
+  List<Text> makePickerItems() {
+    List<Text> items = [];
+    for (String currency in currenciesList) {
+      items.add(
+        Text(
+          currency,
+          style: TextStyle(color: Colors.white),
         ),
       );
     }
@@ -57,22 +74,31 @@ class _PriceScreenState extends State<PriceScreen> {
             alignment: Alignment.center,
             padding: EdgeInsets.only(bottom: 30.0),
             color: Colors.lightBlue,
-            child: DropdownButton<String>(
-              value: chosenCurrency,
-              onChanged: (value) {
-                chosenCurrency = value;
-                setState(() {});
-              },
-              icon: Icon(
-                Icons.monetization_on,
-                color: Colors.amberAccent,
-                size: 30,
-              ),
-              items: makeDropdownItems(),
-            ),
+            child: Platform.isAndroid
+                ? buildAndroidDropdownButton()
+                : buildCupertinoPicker(),
           ),
         ],
       ),
+    );
+  }
+
+  DropdownButton<String> buildAndroidDropdownButton() {
+    return DropdownButton<String>(
+      value: chosenCurrency,
+      onChanged: (value) {
+        chosenCurrency = value;
+        setState(() {});
+      },
+      items: makeDropdownItems(),
+    );
+  }
+
+  CupertinoPicker buildCupertinoPicker() {
+    return CupertinoPicker(
+      itemExtent: 32.0,
+      onSelectedItemChanged: (value) => print(value),
+      children: makePickerItems(),
     );
   }
 }
